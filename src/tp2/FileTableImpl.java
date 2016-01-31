@@ -44,7 +44,13 @@ public class FileTableImpl implements FileTable {
 		
 		
 		List<String> list = new ArrayList<String>();
-		list.add(String.join(",", tuples));
+		String str = "";
+		for(int i=0;i<tuples.length-1;i++){
+			str += tuples[i];
+			str += ",";
+		}
+		str += tuples[tuples.length-1];
+		list.add(str);
 		
 		Files.write(path, list, Charset.forName("UTF-8"), StandardOpenOption.APPEND);
 		

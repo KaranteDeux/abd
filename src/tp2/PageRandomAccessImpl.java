@@ -116,6 +116,13 @@ public class PageRandomAccessImpl implements PageRandomAccess {
 		byteBuffer.get(byteArray, pos * recordSize, recordSize);
 		return byteArray;
 	}
+	
+	public int getRecordAbsolutePosition(Comparable key) {
+		int keyInt = ((Integer) key);
+		int pos = byteBuffer.get(nbMaxRecords * recordSize + keyInt);
+		byte[] byteArray = new byte[recordSize];
+		return pos * recordSize;
+	}
 
 	@Override
 	public boolean removeRecord(Comparable key) {
