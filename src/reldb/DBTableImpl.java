@@ -214,11 +214,23 @@ public class DBTableImpl implements DBTable{
 		}
 	}
 
+	// deleteTuple n'utilise le fait qu'il y a potentiellement des index
+	// Ça serait une chose à faire, plus tard, si on a le temps
+	
 	@Override
 	public void deleteTuple(byte[] TupleValue) throws IOException {
 		int numPage = getPageOfTuple(TupleValue);
 		if(numPage != -1){
 			Page page = pages.get(numPage);
+			
+			int pos = getPosIntoPageOfTuple(numPage, TupleValue);
+			
+			int currentPos = 0;
+			byte [] record = null;
+			while(currentPos != pos){
+				record = page.getNextRecord();
+				currentPos += record.length;
+			}
 			page.remove();
 		}
 	}
