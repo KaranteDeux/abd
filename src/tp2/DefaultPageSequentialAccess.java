@@ -6,26 +6,23 @@ import abd.tp2.Page;
 
 public class DefaultPageSequentialAccess implements Page {
 
+	public static final int PAGE_SIZE_BYTES = 4096;
 	private ByteBuffer buff;
 	private int nbRecords;                                          
-	private int offset;
 	private int recordSize;
 	
-	public DefaultPageSequentialAccess(ByteBuffer buff){
-		this.buff = buff;
-		this.nbRecords = 0;
-		this.offset = 0;
-		this.recordSize = 256;
+	
+	public DefaultPageSequentialAccess(ByteBuffer buff,int size){
+		this.buff= buff;
+		initPage();
+		this.recordSize = size;
 	}
 	
-	public int getOffset() {
-		return offset;
+	public void initPage(){
+		this.nbRecords = 0;
+		this.buff.clear();
 	}
-
-	public void setOffset(int offset) {
-		this.offset = offset;
-	}
-
+	
 	public void setNbRecords(int nbRecords) {
 		this.nbRecords = nbRecords;
 	}
@@ -64,38 +61,47 @@ public class DefaultPageSequentialAccess implements Page {
 
 	@Override
 	public byte[] getNextRecord() {
-		byte[] array = new byte[recordSize];
-		buff.get(array,this.offset,this.recordSize);
-		this.offset += this.recordSize;
-		if(this.offset >= (this.nbRecords * recordSize))
+		if(!buff.hasRemaining())
 			return null;
-		else
-			return array;
+		
+		byte[] array = new byte[recordSize];
+		this.buff.mark();
+		buff.get(array);
+		return array;
 	}
 
 	@Override
 	public void remove() {
+		if(nbRecords <= 0)
+			return;
 		this.nbRecords--;
+		byte [] b = new byte[recordSize]; 
+		for(int i = 0; i < b.length; i++) {
+	        b[i] = '\0';
+	    }
+		buff.reset();
 
+		setRecord(b);
 	}
 
 	@Override
 	public void resetPosition() {
-		this.offset = 0;
+		this.buff.clear();
 
 	}
 
 	@Override
 	public void setRecord(byte[] newRecord) {
-		this.buff.put(newRecord,this.offset,recordSize);
-		this.offset += this.recordSize;
+		this.buff.put(newRecord);
 	}
 
 	@Override
 	public boolean addRecord(byte[] newRecord) {
+
 		this.setRecord(newRecord);
 		this.nbRecords++;
-		return false;
+
+		return true;
 	}
 
 }

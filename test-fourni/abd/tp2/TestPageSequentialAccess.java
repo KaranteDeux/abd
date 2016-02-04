@@ -47,7 +47,7 @@ public class TestPageSequentialAccess {
 	
 	@Before
 	public void setUp () {
-		Arrays.fill(buffer.array(), (byte) 0);
+		//Arrays.fill(buffer.array(), (byte) 0);
 	}
 	
 	@Test
@@ -156,8 +156,11 @@ public class TestPageSequentialAccess {
 		page.addRecord(b_tuple);
 		page.addRecord(c_tuple);
 		
+		
+		
 		page.resetPosition();
 		
+		System.out.println("remaining :" + page.getBuff().remaining());
 		// 
 		Set<Byte> initialTuples = new HashSet<>();
 		initialTuples.add((byte)'a'); initialTuples.add((byte)'b'); initialTuples.add((byte)'c');
@@ -166,10 +169,13 @@ public class TestPageSequentialAccess {
 
 		page.getNextRecord();
 		removed_tuple = page.getNextRecord()[0]; // We remove the tuple that comes second in the iteration.
-												// We de not know which one it is, as there is no requirement on the order of iteration
+		System.out.println("remove tuple : " + (char) removed_tuple);	// We de not know which one it is, as there is no requirement on the order of iteration
 		page.remove();
 		
-		assertEquals(2, page.getNbRecords());
+		System.out.println("remaining :" + page.getBuff().remaining());
+
+		
+		assertEquals(2, page.getNbRecords()); 
 		
 
 		page.resetPosition();
@@ -177,11 +183,20 @@ public class TestPageSequentialAccess {
 		byte x;
 		
 		x = page.getNextRecord()[0];
+		System.out.println("1 + " + (char)x);
 		remainingTuples.add(x);
 		x = page.getNextRecord()[0];
+		System.out.println("2 + " + (char)x);
 		remainingTuples.add(x);
 		
-		assertNull(page.getNextRecord()); // No more records
+		
+		byte [] array = page.getNextRecord();
+		for(byte b : array){
+			System.out.print(b);
+		}
+		System.out.println();
+		
+		assertNull(array); // No more records
 		
 		assertFalse(remainingTuples.contains(removed_tuple));
 		
