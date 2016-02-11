@@ -47,7 +47,7 @@ public class TestPageSequentialAccess {
 	
 	@Before
 	public void setUp () {
-		//Arrays.fill(buffer.array(), (byte) 0);
+		Arrays.fill(buffer.array(), (byte) 0);
 	}
 	
 	@Test
