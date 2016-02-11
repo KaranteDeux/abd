@@ -22,7 +22,7 @@ public class DBTableImpl implements DBTable{
 
 	// First key is the column rank for the index
 	// The column rank lead to a TreeMap which represents all the indexes for THIS columnRank
-	// int [] is always length 2. [0] is page nb. [1] is pos into the page
+	// int [] is always length 2. [0] is page nb. [1] is pos into the page (the page of number [0])
 	Map<Integer, Map<String, int[]>> indexMap;
 
 
@@ -72,9 +72,7 @@ public class DBTableImpl implements DBTable{
 		int[] posTab = new int []{posPage, getPosIntoPageOfTuple(posPage, tupleValue)};
 
 		for(Integer columnRank : keys){
-
 			Map<String, int[]> map = indexMap.get(columnRank);
-
 			map.put(new String(getColumnFromColumnRank(columnRank, tupleValue)), posTab);
 
 		}
@@ -112,20 +110,16 @@ public class DBTableImpl implements DBTable{
 	public int getPageOfTuple(byte[] tupleValue) throws IOException {
 
 		if(!indexMap.keySet().isEmpty()){
+			// S'il y a un index
 			// We take first column having an index
 			int index = new ArrayList<Integer>(indexMap.keySet()).get(0);
 			Map<String, int[]> map = indexMap.get(index);
-
-			// S'il y a un index
+			
 			byte[] column = getColumnFromColumnRank(index, tupleValue);
 			return map.get(column)[0];
 
-
-
 		} else {
 			// S'il n'y a pas d'index
-
-
 
 			int numPage = -1;
 			int i = 0;
@@ -151,7 +145,6 @@ public class DBTableImpl implements DBTable{
 		}
 	}
 
-
 	public int getPosIntoPageOfTuple(int pageNb, byte[] tupleValue) throws IOException {
 
 		Page page = pages.get(pageNb);
@@ -163,7 +156,6 @@ public class DBTableImpl implements DBTable{
 			record = page.getNextRecord();
 			pos += record.length;
 		}
-
 
 		return pos;
 	}
@@ -232,6 +224,16 @@ public class DBTableImpl implements DBTable{
 				currentPos += record.length;
 			}
 			page.remove();
+			
+			List<Integer> keys = new ArrayList<Integer>(indexMap.keySet());
+
+			for(Integer columnRank : keys){
+
+				Map<String, int[]> map = indexMap.get(columnRank);
+
+				String column = new String(getColumnFromColumnRank(columnRank, TupleValue));
+				map.remove(column);
+			}			
 		}
 	}
 
