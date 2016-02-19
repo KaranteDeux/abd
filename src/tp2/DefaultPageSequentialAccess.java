@@ -2,7 +2,6 @@ package tp2;
 
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 import abd.tp2.Page;
 

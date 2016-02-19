@@ -1,6 +1,9 @@
 package abd.tp2;
 
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -82,7 +85,7 @@ public class TestPageSequentialAccess {
 		assertEquals(2, page.getNbRecords());
 	}
 	
-	/*
+	
 	@Test
 	public void testAddThenRetrieve() {
 		int size = 190;
@@ -108,9 +111,9 @@ public class TestPageSequentialAccess {
 		tuple2 = page.getNextRecord();
 		tuple3 = page.getNextRecord();
 		
-		assertEquals("Retrieved tuple must has the same size as the added tuple", size, tuple1.length);
-		assertEquals("Retrieved tuple must has the same size as the added tuple", size, tuple2.length);
-		assertEquals("Retrieved tuple must has the same size as the added tuple", size, tuple3.length);
+		assertEquals("Retrieved tuple must has the same size as the added tuple", size+1, tuple1.length);
+		assertEquals("Retrieved tuple must has the same size as the added tuple", size+1, tuple2.length);
+		assertEquals("Retrieved tuple must has the same size as the added tuple", size+1, tuple3.length);
 		
 		// Declared for iteration purposes
 		byte[][] theThreeTuples = new byte[][]{tuple1, tuple2, tuple3};
@@ -121,21 +124,21 @@ public class TestPageSequentialAccess {
 		Set<Byte> retrievedTuples = new HashSet<>();
 		
 		for (byte[] oneTuple : theThreeTuples) {
-			for (int i = 1; i < size; i++) {
-				if (oneTuple[0] != oneTuple[i]) {
-					// Checks that the retrived tuple contains the same character all over, thus 
+			for (int i = 1; i < size+1; i++) {
+				if (oneTuple[1] != oneTuple[i]) {
+					// Checks tat the retrived tuple contains the same character all over, thus 
 					// ensuring that tuples are not mixed with each other
 					fail("A retrieved tuple should be equal to an added tuple");
 				}
 			}
 			
-			retrievedTuples.add(oneTuple[0]);
+			retrievedTuples.add(oneTuple[1]);
 		}
 		assertEquals(expectedTuples, retrievedTuples);
 	}
 	
 	
-
+/*
 	@Test
 	public void testAddRemove() {
 		
