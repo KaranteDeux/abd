@@ -83,7 +83,6 @@ public class DefaultPageSequentialAccess implements Page {
 		newRecordWithMarker = copyIntoDestinationFrom(newRecord, 1, newRecordWithMarker);
 	
 		try {
-			System.out.println(offset + ", " + recordSizeWithMarker);
 			this.buff.position(offset*recordSizeWithMarker);
 			this.buff.put(newRecordWithMarker);
 			
@@ -120,7 +119,13 @@ public class DefaultPageSequentialAccess implements Page {
 
 	@Override
 	public void setRecord(byte[] newRecord) {
-		this.buff.put(newRecord);
+		byte tab[] = new byte[newRecord.length+1];
+		tab[0] = 1;
+		copyIntoDestinationFrom(newRecord, 1, tab);
+		this.buff.position(this.offset * recordSizeWithMarker); // pas sur de ça
+		this.buff.put(tab);
+	
+		getNextRecord();
 	}
 
 	public int getRecordSize() {
@@ -151,6 +156,15 @@ public class DefaultPageSequentialAccess implements Page {
 
 	
 	
+	
+	public int getOffset() {
+		return offset;
+	}
+
+	public void setOffset(int offset) {
+		this.offset = offset;
+	}
+
 	@Override
 	public long getNbRecords() {
 		return this.nbRecords;

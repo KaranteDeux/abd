@@ -159,11 +159,8 @@ public class TestPageSequentialAccess {
 		page.addRecord(b_tuple);
 		page.addRecord(c_tuple);
 		
-		
-		
 		page.resetPosition();
 		
-		System.out.println("remaining :" + page.getBuff().remaining());
 		
 		Set<Byte> initialTuples = new HashSet<>();
 		initialTuples.add((byte)'a'); initialTuples.add((byte)'b'); initialTuples.add((byte)'c');
@@ -172,24 +169,18 @@ public class TestPageSequentialAccess {
 
 		page.getNextRecord();
 		removed_tuple = page.getNextRecord()[1]; // We remove the tuple that comes second in the iteration.
-		System.out.println("remove tuple : " + (char) removed_tuple);	// We de not know which one it is, as there is no requirement on the order of iteration
 		page.remove();
 		
-		System.out.println("remaining :" + page.getBuff().remaining());
-
 		
 		assertEquals(2, page.getNbRecords()); 
 		
-
 		page.resetPosition();
 		Set<Byte> remainingTuples = new HashSet<>();
 		byte x;
 		
 		x = page.getNextRecord()[1];
-		System.out.println("1 + " + (char)x);
 		remainingTuples.add(x);
 		x = page.getNextRecord()[1];
-		System.out.println("2 + " + (char)x);
 		remainingTuples.add(x);
 		
 		
@@ -228,7 +219,6 @@ public class TestPageSequentialAccess {
 		// Modify the 2nd tuple
 		page.getNextRecord();
 		byte modified_tuple = page.getNextRecord()[1];
-		
 		byte[] newTuple = new byte[size];
 		Arrays.fill(newTuple, (byte) 'x');
 		page.setRecord(newTuple);
@@ -237,12 +227,20 @@ public class TestPageSequentialAccess {
 		page.resetPosition();
 		byte[] currentTuple;
 		
+		while((currentTuple = page.getNextRecord()) != null){
+			System.out.println(" IN tAB " + (char) currentTuple[1]);
+		}
+		page.resetPosition();
 		Set<Byte> tuples_that_are_present = new HashSet<>();
 		while ((currentTuple = page.getNextRecord()) != null) {
-			if (currentTuple[1] == modified_tuple)
+			if (currentTuple[1] == modified_tuple){
+				System.out.println("current tuple " + (char) currentTuple[1]);
 				fail("This tuple should have been removed");
-			else 
+			}
+			else {
+				System.out.println("current tuple " + (char) currentTuple[1]);
 				tuples_that_are_present.add(currentTuple[1]);
+			}
 		}
 		
 		Set<Byte> expectedTuples = new HashSet<>();
