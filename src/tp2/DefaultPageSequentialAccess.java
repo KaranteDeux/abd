@@ -1,6 +1,7 @@
 package tp2;
 
 
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 
 import abd.tp2.Page;
@@ -43,7 +44,11 @@ public class DefaultPageSequentialAccess implements Page {
 		while(!used){
 			this.offset++;
 			buff.position(this.offset * recordSizeWithMarker);
-			buff.get(tmp);
+			try{
+				buff.get(tmp);
+			}catch(BufferUnderflowException e){
+				return null;
+			}
 			
 			// tmp[0] est l'octet du marqueur
 			if(tmp[0] == 1)
@@ -101,7 +106,8 @@ public class DefaultPageSequentialAccess implements Page {
 		
 		byte[] mark = new byte[recordSizeWithMarker];
 		mark[0] = 0;
-		this.buff.put(mark, offset*recordSizeWithMarker, recordSizeWithMarker);
+		this.buff.position(offset*recordSizeWithMarker);
+		this.buff.put(mark);
 		
 		this.offset++;
 	}
