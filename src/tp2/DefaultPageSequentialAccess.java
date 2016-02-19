@@ -43,17 +43,14 @@ public class DefaultPageSequentialAccess implements Page {
 
 		while(!used){
 			this.offset++;
-
-			buff.get(tmp, offset*recordSizeWithMarker, recordSizeWithMarker);
+			buff.position(this.offset * recordSizeWithMarker);
+			buff.get(tmp);
 			
 			// tmp[0] est l'octet du marqueur
 			if(tmp[0] == 1)
 				used = true;
-		}
-
-		byte[] array = Arrays.copyOfRange(tmp, 1, tmp.length-1);
-		
-		return array;
+		}		
+		return tmp;
 	}
 	
 	@Override
