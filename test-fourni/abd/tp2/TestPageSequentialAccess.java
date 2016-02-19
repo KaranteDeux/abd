@@ -1,7 +1,8 @@
 package abd.tp2;
 
-import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -227,18 +228,12 @@ public class TestPageSequentialAccess {
 		page.resetPosition();
 		byte[] currentTuple;
 		
-		while((currentTuple = page.getNextRecord()) != null){
-			System.out.println(" IN tAB " + (char) currentTuple[1]);
-		}
-		page.resetPosition();
 		Set<Byte> tuples_that_are_present = new HashSet<>();
 		while ((currentTuple = page.getNextRecord()) != null) {
 			if (currentTuple[1] == modified_tuple){
-				System.out.println("current tuple " + (char) currentTuple[1]);
 				fail("This tuple should have been removed");
 			}
 			else {
-				System.out.println("current tuple " + (char) currentTuple[1]);
 				tuples_that_are_present.add(currentTuple[1]);
 			}
 		}
