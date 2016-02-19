@@ -63,7 +63,8 @@ public class DefaultPageSequentialAccess implements Page {
 			this.offset++;
 			
 			try {
-				buff.get(tmp, offset*recordSizeWithMarker, recordSizeWithMarker);
+				this.buff.position(offset*recordSizeWithMarker);
+				buff.get(tmp);
 			} catch(Exception e){
 				return false;
 			}
@@ -76,11 +77,14 @@ public class DefaultPageSequentialAccess implements Page {
 		byte[] newRecordWithMarker = new byte[newRecord.length+1];
 		newRecordWithMarker[0] = 1;
 		newRecordWithMarker = copyIntoDestinationFrom(newRecord, 1, newRecordWithMarker);
+	
 		try {
 			System.out.println(offset + ", " + recordSizeWithMarker);
-			this.buff.put(newRecordWithMarker, offset*recordSizeWithMarker, recordSizeWithMarker);
+			this.buff.position(offset*recordSizeWithMarker);
+			this.buff.put(newRecordWithMarker);
 			
 		} catch(Exception e){
+			System.out.println("Error from here !");
 			e.printStackTrace();
 			return false;
 		}
@@ -131,10 +135,10 @@ public class DefaultPageSequentialAccess implements Page {
 	}
 	
 	public byte[] copyIntoDestinationFrom(byte[] from, int pos, byte[] to){
-		if(from.length-pos < to.length)
+		if((to.length - pos) < from.length)
 			return null;
 
-		for(int i=0;i<to.length;i++)
+		for(int i=0;i<from.length;i++)
 			to[i+pos] = from[i];
 		
 		return to;

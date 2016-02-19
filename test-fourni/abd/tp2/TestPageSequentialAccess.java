@@ -82,7 +82,7 @@ public class TestPageSequentialAccess {
 		assertEquals(2, page.getNbRecords());
 	}
 	
-	
+	/*
 	@Test
 	public void testAddThenRetrieve() {
 		int size = 190;
@@ -259,5 +259,5 @@ public class TestPageSequentialAccess {
 		
 	}
 	
-	
+	*/
 }
