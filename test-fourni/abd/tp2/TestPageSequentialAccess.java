@@ -205,7 +205,7 @@ public class TestPageSequentialAccess {
 	}
 	
 	
-	/*
+	
 	@Test
 	public void testSetRecord() {
 		int size = 5;
@@ -227,7 +227,7 @@ public class TestPageSequentialAccess {
 		
 		// Modify the 2nd tuple
 		page.getNextRecord();
-		byte modified_tuple = page.getNextRecord()[0];
+		byte modified_tuple = page.getNextRecord()[1];
 		
 		byte[] newTuple = new byte[size];
 		Arrays.fill(newTuple, (byte) 'x');
@@ -239,10 +239,10 @@ public class TestPageSequentialAccess {
 		
 		Set<Byte> tuples_that_are_present = new HashSet<>();
 		while ((currentTuple = page.getNextRecord()) != null) {
-			if (currentTuple[0] == modified_tuple)
+			if (currentTuple[1] == modified_tuple)
 				fail("This tuple should have been removed");
 			else 
-				tuples_that_are_present.add(currentTuple[0]);
+				tuples_that_are_present.add(currentTuple[1]);
 		}
 		
 		Set<Byte> expectedTuples = new HashSet<>();
@@ -256,5 +256,5 @@ public class TestPageSequentialAccess {
 		
 	}
 	
-	*/
+	
 }
