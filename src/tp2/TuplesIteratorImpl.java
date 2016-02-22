@@ -23,7 +23,10 @@ public class TuplesIteratorImpl implements TuplesIterator {
 
 	@Override
 	public String[] next() throws IOException {
-		return scanner.next().split(",");
+		String next = scanner.next();
+		if(next != null)
+			return next.split("\\,");
+		return null;
 	}
 
 	@Override

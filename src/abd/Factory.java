@@ -45,16 +45,15 @@ public class Factory {
 	}
 	
 	public static DBTable newDBTableWithoutIndex (Path dataFolderPath, TableDescription tabledes ) throws IOException {
-		Files.createDirectory(dataFolderPath);
-		return new DBTableImpl(tabledes);
+		return new DBTableImpl(dataFolderPath, tabledes);
 	}
 	
 	public static DBTable newDBTableWithIndexOnOneColumn (Path dataFolderPath,  TableDescription tabledes, int IndexcolumnRank) throws IOException {
-		throw new UnsupportedOperationException("add your implementation class");
+		return new DBTableImpl(dataFolderPath, tabledes, IndexcolumnRank);
 	}
 	
 	public static DBTable newDBTableWithIndex (Path dataFolderPath, TableDescription tabledes, int... Index ) throws IOException {
-		throw new UnsupportedOperationException("add your implementation class");
+		return new DBTableImpl(dataFolderPath, tabledes, Index);
 	}
 	
 

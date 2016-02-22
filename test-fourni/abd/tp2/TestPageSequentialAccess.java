@@ -112,9 +112,9 @@ public class TestPageSequentialAccess {
 		tuple2 = page.getNextRecord();
 		tuple3 = page.getNextRecord();
 		
-		assertEquals("Retrieved tuple must has the same size as the added tuple", size+1, tuple1.length);
-		assertEquals("Retrieved tuple must has the same size as the added tuple", size+1, tuple2.length);
-		assertEquals("Retrieved tuple must has the same size as the added tuple", size+1, tuple3.length);
+		assertEquals("Retrieved tuple must has the same size as the added tuple", size, tuple1.length);
+		assertEquals("Retrieved tuple must has the same size as the added tuple", size, tuple2.length);
+		assertEquals("Retrieved tuple must has the same size as the added tuple", size, tuple3.length);
 		
 		// Declared for iteration purposes
 		byte[][] theThreeTuples = new byte[][]{tuple1, tuple2, tuple3};
@@ -125,15 +125,15 @@ public class TestPageSequentialAccess {
 		Set<Byte> retrievedTuples = new HashSet<>();
 		
 		for (byte[] oneTuple : theThreeTuples) {
-			for (int i = 1; i < size+1; i++) {
-				if (oneTuple[1] != oneTuple[i]) {
-					// Checks tat the retrived tuple contains the same character all over, thus 
+			for (int i = 1; i < size; i++) {
+				if (oneTuple[0] != oneTuple[i]) {
+					// Checks that the retrived tuple contains the same character all over, thus 
 					// ensuring that tuples are not mixed with each other
 					fail("A retrieved tuple should be equal to an added tuple");
 				}
 			}
 			
-			retrievedTuples.add(oneTuple[1]);
+			retrievedTuples.add(oneTuple[0]);
 		}
 		assertEquals(expectedTuples, retrievedTuples);
 	}
@@ -162,28 +162,28 @@ public class TestPageSequentialAccess {
 		
 		page.resetPosition();
 		
-		
+		// 
 		Set<Byte> initialTuples = new HashSet<>();
 		initialTuples.add((byte)'a'); initialTuples.add((byte)'b'); initialTuples.add((byte)'c');
 
 		byte removed_tuple;
 
 		page.getNextRecord();
-		removed_tuple = page.getNextRecord()[1]; // We remove the tuple that comes second in the iteration.
+		removed_tuple = page.getNextRecord()[0]; // We remove the tuple that comes second in the iteration.
+												// We de not know which one it is, as there is no requirement on the order of iteration
 		page.remove();
 		
+		assertEquals(2, page.getNbRecords());
 		
-		assertEquals(2, page.getNbRecords()); 
-		
+
 		page.resetPosition();
 		Set<Byte> remainingTuples = new HashSet<>();
 		byte x;
 		
-		x = page.getNextRecord()[1];
+		x = page.getNextRecord()[0];
 		remainingTuples.add(x);
-		x = page.getNextRecord()[1];
+		x = page.getNextRecord()[0];
 		remainingTuples.add(x);
-		
 		
 		assertNull(page.getNextRecord()); // No more records
 		
@@ -193,7 +193,7 @@ public class TestPageSequentialAccess {
 		shouldBeSameAsInitial.addAll(remainingTuples);
 		shouldBeSameAsInitial.add(removed_tuple);
 		
-		assertEquals(initialTuples, shouldBeSameAsInitial);		
+		assertEquals(initialTuples, shouldBeSameAsInitial);	
 	}
 	
 	
@@ -219,7 +219,8 @@ public class TestPageSequentialAccess {
 		
 		// Modify the 2nd tuple
 		page.getNextRecord();
-		byte modified_tuple = page.getNextRecord()[1];
+		byte modified_tuple = page.getNextRecord()[0];
+		
 		byte[] newTuple = new byte[size];
 		Arrays.fill(newTuple, (byte) 'x');
 		page.setRecord(newTuple);
@@ -230,12 +231,10 @@ public class TestPageSequentialAccess {
 		
 		Set<Byte> tuples_that_are_present = new HashSet<>();
 		while ((currentTuple = page.getNextRecord()) != null) {
-			if (currentTuple[1] == modified_tuple){
+			if (currentTuple[0] == modified_tuple)
 				fail("This tuple should have been removed");
-			}
-			else {
-				tuples_that_are_present.add(currentTuple[1]);
-			}
+			else 
+				tuples_that_are_present.add(currentTuple[0]);
 		}
 		
 		Set<Byte> expectedTuples = new HashSet<>();

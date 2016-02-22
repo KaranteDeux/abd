@@ -25,6 +25,8 @@ public class FileTableImpl implements FileTable {
 			throw new IllegalArgumentException("Arity cannot be equals or less than 0");
 		this.arity = arity;
 		this.path = path;
+		List<String> list = new ArrayList<String>();
+		Files.write(path, list, Charset.forName("UTF-8"), StandardOpenOption.CREATE);
 	}
 
 	@Override
@@ -81,7 +83,7 @@ public class FileTableImpl implements FileTable {
 		
 		while(it.hasNext()){
 			String[] elements = it.next();
-			if(elements[columnRank].equals(contained))
+			if(elements[columnRank].contains(contained))
 				fileTableImpl.addTuple(elements);
 		}
 		
@@ -99,9 +101,7 @@ public class FileTableImpl implements FileTable {
 			if(columnRank < 0 && columnRank > arity)
 				throw new IllegalArgumentException();
 		}
-		
-		
-		
+				
 		FileTableImpl fileTableImpl = new FileTableImpl(columnRanks.length, resultPath);
 		
 		
@@ -114,6 +114,7 @@ public class FileTableImpl implements FileTable {
 				newElements[i] = elements[columnRanks[i]];
 				
 			}
+			fileTableImpl.addTuple(newElements);
 		}
 		
 		return fileTableImpl;
