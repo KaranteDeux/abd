@@ -2,6 +2,9 @@ package abd.reldb;
 
 import static abd.reldb.Datatype.*;
 
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+
 /** Describes the type of an attribute of a relation.
  * An attribute type is characterized by its length and its datatype, except for a decimal that has also a scale.  
  * 
@@ -23,7 +26,6 @@ public class AttributeType {
 		this.datatype = datatype;
 		this.length = length;
 		this.scale = scale;
-		
 	}
 	
 	public static AttributeType newCharacter (int length) {
@@ -78,4 +80,43 @@ public class AttributeType {
 		if (datatype == DECIMAL) return scale;
 		else throw new UnsupportedOperationException("Scale is undefined for " + datatype);
 	}
+	
+	public static String toString (AttributeType type, byte[] value) {
+		switch (type.datatype) {
+		case CHARACTER:
+			if (type.length < 3)
+				return new String(value);
+			else 
+				return new String(Arrays.copyOfRange(value, 0, 3));
+		case VARCHAR: 
+			if (value[0] == 0) return "_0_";
+			if (value[1] == 0) return new String(Arrays.copyOfRange(value, 0, 1));
+			if (value[2] == 0) return new String(Arrays.copyOfRange(value, 0, 2));
+			return new String(Arrays.copyOfRange(value, 0, 3));
+		case BOOLEAN:
+			if (value[0] == 0) return "false";
+			else return "true";
+		case INTEGER:
+			return new String(value);
+		case DECIMAL:
+			int firstDecimal = type.getPrecision() - type.getScale();
+			return String.format("%s.%s", new String(Arrays.copyOfRange(value, 0, firstDecimal)), 
+					new String(Arrays.copyOfRange(value, firstDecimal, type.length)));
+		case TIMESTAMP:
+			return ""+ByteBuffer.wrap(value).getLong();
+		}
+		throw new UnsupportedOperationException("unknown datatype " + type.datatype);
+	}
+	
+	
+	public static String toString (byte[] value) {
+		if (value.length == 1)
+			return ""+value[0];
+		if (value.length == 2)
+			return String.format("[%d,%d]", value[0], value[1]);
+		if (value.length == 3)
+			return String.format("[%d,%d,%d]", value[0], value[1], value[2]);
+		return String.format("[%d,%d,%d,...]", value[0], value[1], value[2]);
+	}
+	
 }

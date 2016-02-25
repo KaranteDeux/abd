@@ -1,9 +1,7 @@
 package tp2;
 
 
-import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 import abd.tp2.Page;
 
@@ -12,7 +10,6 @@ public class DefaultPageSequentialAccess implements Page {
 
 	public static int PAGE_SIZE_BYTES = 3 * 512;
 	private ByteBuffer buff;
-	private int nbRecords;                                          
 	private int recordSize;
 	final private int recordSizeWithMarker;
 
@@ -30,7 +27,6 @@ public class DefaultPageSequentialAccess implements Page {
 	}
 
 	public void initPage(){
-		this.nbRecords = 0;
 		resetPosition();
 	}
 

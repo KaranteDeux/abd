@@ -18,4 +18,12 @@ public interface TableDescription {
 	 */
 	public AttributeType getAttributeType (int attributeRank);
 	
+	public int getColumnOffset(int columnRank);
+	
+	public String getName();
+
+	int getTupleLength();
+
+
+	
 }
