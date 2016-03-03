@@ -3,6 +3,8 @@ package abd.reldb;
 import java.io.Closeable;
 import java.io.IOException;
 
+import abd.reldb.ra.phys.PhysicalOperator;
+
 /** A database table, that allows to access the data.
  * 
  * @author Iovka Boneva
@@ -10,7 +12,7 @@ import java.io.IOException;
  * This document is licensed under a Creative Commons Attribution 3.0 License: http://creativecommons.org/licenses/by/3.0/
  * 15 janv. 2016
  */
-public interface DBTable extends Closeable {
+public interface DBTable extends Closeable, PhysicalOperator{
 
 	/** Retrieves the table description of the table.
 	 * 

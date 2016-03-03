@@ -9,6 +9,9 @@ import reldb.DBTableImpl;
 import tp2.FileTableImpl;
 import abd.reldb.DBTable;
 import abd.reldb.TableDescription;
+import abd.reldb.ra.phys.PhysicalOperator;
+import abd.reldb.ra.phys.TableMapIndexAccessOperator;
+
 import abd.tp1.FileTable;
 
 /** This class contains factory methods that provide instances of various interfaces.
@@ -56,6 +59,11 @@ public class Factory {
 		return new DBTableImpl(dataFolderPath, tabledes, Index);
 	}
 	
-
-
+	public static PhysicalOperator newTableSequentialTraversalOperator(Path tableDataFolder, TableDescription tableDescription) { 
+		return new DBTableImpl(tableDataFolder, tableDescription);
+	}
+	
+	public static PhysicalOperator newTableMapIndexedTraversalOperator(Path tableDataFolder, TableDescription tableDescription, byte[] attributeValue, int indexedColumnRank) throws IOException{
+		return new TableMapIndexAccessOperator(tableDataFolder, tableDescription, attributeValue, indexedColumnRank);
+	}
 }

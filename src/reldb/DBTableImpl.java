@@ -10,14 +10,21 @@ import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.function.Function;
+import java.util.function.ToDoubleFunction;
+import java.util.function.ToIntFunction;
+import java.util.function.ToLongFunction;
 
 import tp2.DefaultPageSequentialAccess;
+import abd.Factory;
 import abd.reldb.DBTable;
 import abd.reldb.TableDescription;
+import abd.reldb.TestUtil;
 
 public class DBTableImpl implements DBTable{
 
@@ -35,7 +42,10 @@ public class DBTableImpl implements DBTable{
 	// First key is the column rank for the index
 	// The column rank lead to a TreeMap which represents all the indexes for THIS columnRank
 	// String [] is always length 2. [0] is pageFilename. [1] is pos into the page (the page of name [0])
-	public Map<Integer, Map<String, String[]>> indexMap;
+	public Map<Integer, Map<String, List<String[]>>> indexMap;
+	
+	// Used to store the result of a request
+	DBTable result;
 
 	public DBTableImpl(Path dataFolderPath, TableDescription defTabDesc){
 		this.defTabDesc = defTabDesc;
@@ -43,21 +53,21 @@ public class DBTableImpl implements DBTable{
 		this.dataFolderPath = dataFolderPath;
 		pagesFilename = getListPageFiles();
 		NB_MAX_RECORDS = PAGE_SIZE / getNbBytesPerRecord();
-		indexMap = new HashMap<Integer, Map<String, String[]>>();
-		
-		
+		indexMap = new HashMap<Integer, Map<String, List<String[]>>>();
+
+
 	}
 
 	public DBTableImpl(Path dataFolderPath, TableDescription defTabDesc, int indexColumnRank){
 		this(dataFolderPath, defTabDesc);
-		indexMap.put(indexColumnRank, new HashMap<String, String[]>());
+		indexMap.put(indexColumnRank, new HashMap<String, List<String[]>>());
 		this.indexMap = loadIndexes();
 	}
 
 	public DBTableImpl(Path dataFolderPath, TableDescription defTabDesc, int [] indexesColumnRank){
 		this(dataFolderPath, defTabDesc);
 		for(Integer index : indexesColumnRank){
-			indexMap.put(index, new HashMap<String, String[]>());
+			indexMap.put(index, new HashMap<String, List<String[]>>());
 		}
 		this.indexMap = loadIndexes();
 	}
@@ -95,12 +105,14 @@ public class DBTableImpl implements DBTable{
 		String[] posTab = new String []{currentPageFilename, getPosIntoPageOfTuple(currentPageFilename, tupleValue) + ""}; // Convert into String
 
 		for(Integer columnRank : keys){
-			Map<String, String[]> map = indexMap.get(columnRank);
+			Map<String, List<String[]>> map = indexMap.get(columnRank);
 			String key = new String(getColumnFromColumnRank(columnRank, tupleValue));
-			if(map.get(key) == null){ // S'il n'y a pas déjà d'entrées pour cette clef
-				map.put(key, posTab);
-			}
 
+			List<String []> posList = map.get(key);
+			if(posList == null)
+				posList = new ArrayList<String []>();
+			posList.add(posTab);
+			map.put(key, posList);
 
 		}
 
@@ -145,15 +157,28 @@ public class DBTableImpl implements DBTable{
 			// S'il y a un index
 			// We take first column having an index
 			int index = new ArrayList<Integer>(indexMap.keySet()).get(0);
-			Map<String, String[]> map = indexMap.get(index);
+			Map<String, List<String[]>> map = indexMap.get(index);
 			System.out.println("Index : " + map.keySet().toString());
 
 			String key = new String(getColumnFromColumnRank(index, tupleValue));
-			System.out.println("Column : " + key);
+			List<String []> posList = sortPosList(map.get(key));
+			
+			for(String []posElement : posList){
+				loadPage(posElement[0]);
+				
+				int pos = 0;
+				byte[] record = null;
+				while(pos != Integer.parseInt(posElement[1])){		
+					record = page.getNextRecord();
+					pos += record.length;
+				}
+				
+				if(Arrays.equals(record, tupleValue))
+					return currentPageFilename;
+			}
+			// Si return null, il y a un problème
+			return null;
 
-			System.out.println("ind[0] : " + map.get(key));
-			System.out.println((map.keySet().toString()));
-			return map.get(key)[0];
 
 		} else {
 			// S'il n'y a pas d'index
@@ -203,14 +228,25 @@ public class DBTableImpl implements DBTable{
 
 	@Override
 	public byte[] getTupleBySelection(int columnRank, byte[] attributeValue) throws IOException {
-		Map<String, String[]> map = indexMap.get(columnRank);
+		// TODO 
+		/*int [] indexes = new int[indexMap.keySet().size()];
+		
+		for (int i = 0; i < indexMap.keySet().size(); i++) {
+			indexes[i] = indexMap.keySet().get(i);
+			
+		}
+		result = Factory.newDBTableWithIndex(dataFolderPath + "../result", defTabDesc, );
+		*/
+		Map<String, List<String[]>> map = indexMap.get(columnRank);
 		if(map != null && map.get(attributeValue) != null){
-			loadPage(map.get(attributeValue)[0]);
+			
+			
+			loadPage(map.get(attributeValue).get(0)[0]);
 
 			page.resetPosition();
 
 			int cpt = 0;
-			int posIntoPage = Integer.parseInt(map.get(attributeValue)[1]);
+			int posIntoPage = Integer.parseInt(map.get(attributeValue).get(0)[1]);
 			byte[] record = page.getNextRecord(); 
 			while(cpt != posIntoPage){		
 				record = page.getNextRecord();
@@ -251,12 +287,8 @@ public class DBTableImpl implements DBTable{
 
 	@Override
 	public void deleteTuple(byte[] TupleValue) throws IOException {
-		System.out.println("START DELETE");
-		System.out.println("Tuple " + Arrays.toString(TupleValue));
-		
 		String pageFilename = getPageOfTuple(TupleValue);
 
-		System.out.println("Page filename : " + pageFilename);
 		if(pageFilename != null){
 			loadPage(pageFilename);
 
@@ -271,14 +303,12 @@ public class DBTableImpl implements DBTable{
 			List<Integer> keys = new ArrayList<Integer>(indexMap.keySet());
 
 			for(Integer columnRank : keys){
-				Map<String, String[]> map = indexMap.get(columnRank);
+				Map<String, List<String[]>> map = indexMap.get(columnRank);
 				String column = new String(getColumnFromColumnRank(columnRank, TupleValue));
 				map.remove(column);
 			}			
 		}
 		saveCurrentPage();
-		System.out.println("END DELETE");
-
 	}
 
 
@@ -299,8 +329,8 @@ public class DBTableImpl implements DBTable{
 		}
 	}
 
-	private Map<Integer, Map<String, String[]>> loadIndexes(){
-		Map<Integer, Map<String, String[]>> index = new TreeMap<Integer, Map<String, String[]>>();
+	private Map<Integer, Map<String, List<String[]>>> loadIndexes(){
+		Map<Integer, Map<String, List<String[]>>> index = new HashMap<Integer, Map<String, List<String[]>>>();
 
 
 		ArrayList<String> indexes = getListIndexFiles();
@@ -308,21 +338,19 @@ public class DBTableImpl implements DBTable{
 			try {
 				FileInputStream fin = new FileInputStream(dataFolderPath + "/" + filename);
 				ObjectInputStream ois = new ObjectInputStream(fin);   
-				Map<String, String[]> map = (Map<String, String[]>)ois.readObject();
+				Map<String, List<String[]>> map = (Map<String, List<String[]>>)ois.readObject();
 				int indColumn = Integer.parseInt(filename.split("\\.")[0]);
-				
+
 				index.put(indColumn, map);
-				
-				System.out.println("blabla : " + indColumn);
-				System.out.println("map : " + index.get(0).keySet().toString());
+
 				ois.close();
 			} catch(Exception e){
 				e.printStackTrace();
 			}
 		}
-		
-		
-		
+
+
+
 		return index;
 
 
@@ -381,6 +409,18 @@ public class DBTableImpl implements DBTable{
 		return cpt;
 	}
 
+	private List<String []> sortPosList(List<String []> posList){
+		String [][]array= new String[posList.size()][2];
+		int i=0;
+		for(String[] posElement : posList){
+			array[i] = posElement;
+			i++;
+		}
+		
+		Arrays.sort(array, new DefaultComparator());
+		return Arrays.asList(array);
+	}
+	
 	@Override
 	public void close() throws IOException {
 
@@ -391,6 +431,35 @@ public class DBTableImpl implements DBTable{
 
 	}
 
+	@Override
+	public byte[] nextRecord() throws IOException {
+		// Si pas de page courante chargee, on est au debut, et on charge donc la premiere page
+		if(page == null){
+			loadPage(pagesFilename.get(0));
+		}
+		byte [] nextRecord = page.getNextRecord();
+		// Si on est a la fin de la page
+		if(nextRecord != null)
+			return nextRecord;
+		
+		int i = pagesFilename.indexOf(currentPageFilename);
+		
+		// Si on est a la fin de la derniere page et qu'il n'y a plus de page a charger derriere
+		if((i+1) >= pagesFilename.size())
+			return null;
+		
+		loadPage(pagesFilename.get(i+1));
+		return page.getNextRecord();
+		
+	}
+	
+	private class DefaultComparator implements Comparator<String[]> {
 
+		@Override
+		public int compare(String[] o1, String[] o2) {
+			return o1[0].compareTo(o2[0]);
+		}
+	
+	}
 
 }

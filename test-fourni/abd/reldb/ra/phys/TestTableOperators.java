@@ -100,6 +100,7 @@ public class TestTableOperators {
 				System.out.println("" + ((char) record[0]) + ((char) record[239]));
 			}
 		}
+
 	}
 
 	
