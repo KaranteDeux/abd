@@ -14,22 +14,16 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
-import java.util.function.Function;
-import java.util.function.ToDoubleFunction;
-import java.util.function.ToIntFunction;
-import java.util.function.ToLongFunction;
 
 import tp2.DefaultPageSequentialAccess;
-import abd.Factory;
+import utils.Utils;
 import abd.reldb.DBTable;
 import abd.reldb.TableDescription;
-import abd.reldb.TestUtil;
 
 public class DBTableImpl implements DBTable{
 
 	public int NB_MAX_RECORDS;
-	public int PAGE_SIZE = 3 * 512;
+	public static int PAGE_SIZE = 3 * 512;
 
 	Path dataFolderPath;
 	DefaultPageSequentialAccess page; // Current page loaded
@@ -44,9 +38,6 @@ public class DBTableImpl implements DBTable{
 	// String [] is always length 2. [0] is pageFilename. [1] is pos into the page (the page of name [0])
 	public Map<Integer, Map<String, List<String[]>>> indexMap;
 	
-	// Used to store the result of a request
-	DBTable result;
-
 	public DBTableImpl(Path dataFolderPath, TableDescription defTabDesc){
 		this.defTabDesc = defTabDesc;
 		page = null;
@@ -106,7 +97,7 @@ public class DBTableImpl implements DBTable{
 
 		for(Integer columnRank : keys){
 			Map<String, List<String[]>> map = indexMap.get(columnRank);
-			String key = new String(getColumnFromColumnRank(columnRank, tupleValue));
+			String key = new String(Utils.getColumnFromColumnRank(defTabDesc, columnRank, tupleValue));
 
 			List<String []> posList = map.get(key);
 			if(posList == null)
@@ -124,15 +115,7 @@ public class DBTableImpl implements DBTable{
 
 	}
 
-	private byte[] getColumnFromColumnRank(int columnRank, byte[] tuple){
 
-		int posDansTuple = 0, sizeColumn = defTabDesc.getAttributeType(columnRank).getLength();
-		for(int pos = 0;pos<columnRank;pos++){
-			posDansTuple += defTabDesc.getAttributeType(pos).getLength();
-		}
-		return Arrays.copyOfRange(tuple, posDansTuple, posDansTuple + sizeColumn);
-
-	}
 
 	private String getFirstPageNotFull(){
 		for(String pageFilename : pagesFilename){
@@ -160,7 +143,7 @@ public class DBTableImpl implements DBTable{
 			Map<String, List<String[]>> map = indexMap.get(index);
 			System.out.println("Index : " + map.keySet().toString());
 
-			String key = new String(getColumnFromColumnRank(index, tupleValue));
+			String key = new String(Utils.getColumnFromColumnRank(defTabDesc, index, tupleValue));
 			List<String []> posList = sortPosList(map.get(key));
 			
 			for(String []posElement : posList){
@@ -304,7 +287,7 @@ public class DBTableImpl implements DBTable{
 
 			for(Integer columnRank : keys){
 				Map<String, List<String[]>> map = indexMap.get(columnRank);
-				String column = new String(getColumnFromColumnRank(columnRank, TupleValue));
+				String column = new String(Utils.getColumnFromColumnRank(defTabDesc, columnRank, TupleValue));
 				map.remove(column);
 			}			
 		}
@@ -319,10 +302,10 @@ public class DBTableImpl implements DBTable{
 				FileInputStream in = new FileInputStream(dataFolderPath + "/" + currentPageFilename);
 				byte [] b = new byte[PAGE_SIZE];
 				in.read(b);
-				//in.close();
 
 				page = new DefaultPageSequentialAccess(ByteBuffer.wrap(b), getNbBytesPerRecord());
 
+				in.close();
 			} catch(Exception e){
 				e.printStackTrace();
 			}	

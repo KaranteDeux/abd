@@ -96,8 +96,12 @@ public class TestTableOperators {
 		Arrays.fill(value,  0, 10, (byte) '1');
 		try (PhysicalOperator indexAccess = Factory.newTableMapIndexedTraversalOperator(dataFolder, TestUtil.descr_char10_char230, value, 0)) {
 			byte[] record;
+			int cpt = 0;
 			while ((record = indexAccess.nextRecord()) != null) {
 				System.out.println("" + ((char) record[0]) + ((char) record[239]));
+				if(cpt > 20)
+					System.exit(0);
+				cpt++;
 			}
 		}
 

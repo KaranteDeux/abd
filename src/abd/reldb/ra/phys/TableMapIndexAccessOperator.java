@@ -2,7 +2,9 @@ package abd.reldb.ra.phys;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Arrays;
 
+import utils.Utils;
 import abd.Factory;
 import abd.reldb.DBTable;
 import abd.reldb.TableDescription;
@@ -16,12 +18,17 @@ public class TableMapIndexAccessOperator implements PhysicalOperator {
 	public TableMapIndexAccessOperator(Path dataFolder, TableDescription tableDescr, byte[] attributeValue, int indexedColumnRank) throws IOException {
 		table = Factory.newDBTableWithIndex(dataFolder, tableDescr, indexedColumnRank);
 		this.attributeValue = attributeValue; 
-		
+		this.columnRank = indexedColumnRank;
 	}
 
 	@Override
 	public byte[] nextRecord() throws IOException {
-		return table.getTupleBySelection(columnRank, attributeValue);
+		byte[] record;
+		do {
+			record = table.nextRecord();
+		}while(record != null && !Arrays.equals(attributeValue, Utils.getColumnFromColumnRank(table.getTableDescription(), columnRank, record)));
+		
+		return record;
 		
 	}
 
