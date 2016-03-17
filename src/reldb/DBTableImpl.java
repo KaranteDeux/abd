@@ -211,15 +211,7 @@ public class DBTableImpl implements DBTable{
 
 	@Override
 	public byte[] getTupleBySelection(int columnRank, byte[] attributeValue) throws IOException {
-		// TODO 
-		/*int [] indexes = new int[indexMap.keySet().size()];
 		
-		for (int i = 0; i < indexMap.keySet().size(); i++) {
-			indexes[i] = indexMap.keySet().get(i);
-			
-		}
-		result = Factory.newDBTableWithIndex(dataFolderPath + "../result", defTabDesc, );
-		*/
 		Map<String, List<String[]>> map = indexMap.get(columnRank);
 		if(map != null && map.get(attributeValue) != null){
 			
