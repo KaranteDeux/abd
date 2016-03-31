@@ -2,7 +2,7 @@ package utils;
 
 import java.util.Arrays;
 
-import abd.reldb.TableDescription;
+import abd.schemas.TableDescription;
 
 public class Utils {
 	public static byte[] getColumnFromColumnRank(TableDescription defTabDesc, int columnRank, byte[] tuple){

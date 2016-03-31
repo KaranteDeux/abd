@@ -1,5 +1,7 @@
 package abd.tp2;
 
+import abd.phys.Page;
+
 public interface PageRandomAccess<K extends Comparable<K>>  extends Page {
 	
 	/** Retrieves the record with the given key.
