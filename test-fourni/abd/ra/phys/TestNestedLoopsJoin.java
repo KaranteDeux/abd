@@ -67,7 +67,7 @@ public class TestNestedLoopsJoin {
 			while ((record = join.nextRecord()) != null) {
 				String r = "" + (char) record[0] + (char) record[record.length-1];
 				results.add(r);
-				System.out.println(r);
+				//System.out.println(r);
 			}
 		}
 		
@@ -133,11 +133,11 @@ public class TestNestedLoopsJoin {
 			while ((record = join.nextRecord()) != null) {
 				String r = "" + (char) record[0] + (char) record[record.length-1];
 				results.add(r);
-				System.out.println(r);
+				//System.out.println(r);
 			}
 		}
 		
-		System.out.println(results);
+		//System.out.println(results);
 		
 		assertEquals(20-4, results.size());
 		assertFalse(results.contains("b1"));

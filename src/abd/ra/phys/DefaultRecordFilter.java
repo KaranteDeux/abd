@@ -20,7 +20,7 @@ public class DefaultRecordFilter extends AbstractRecordFilter implements RecordF
 			if(!selector.isSelected(record))
 				return null;
 		}
-		
+			
 		for(Integer projector : projectors) {
 			sizeTab += inputDescription.getAttributeType(projector).getLength();
 		}

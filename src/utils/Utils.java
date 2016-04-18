@@ -11,6 +11,7 @@ public class Utils {
 		for(int pos = 0;pos<columnRank;pos++){
 			posDansTuple += defTabDesc.getAttributeType(pos).getLength();
 		}
+		
 		return Arrays.copyOfRange(tuple, posDansTuple, posDansTuple + sizeColumn);
 
 	}

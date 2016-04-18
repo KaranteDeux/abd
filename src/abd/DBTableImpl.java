@@ -39,6 +39,7 @@ public class DBTableImpl implements DBTable{
 	public Map<Integer, Map<String, List<String[]>>> indexMap;
 	
 	public DBTableImpl(Path dataFolderPath, TableDescription defTabDesc){
+			
 		this.defTabDesc = defTabDesc;
 		page = null;
 		this.dataFolderPath = dataFolderPath;

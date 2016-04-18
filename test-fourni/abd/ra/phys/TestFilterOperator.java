@@ -55,7 +55,6 @@ public class TestFilterOperator {
 		PhysicalOperator seqTraversal = new TableSequentialAccessOperator("TABLE_ONE");
 		try (DefaultFilterOperator filterOp = new DefaultFilterOperator(seqTraversal, filter)) {
 
-
 			ArrayList<String> results = new ArrayList<>();
 			byte[] record;
 			while ((record = filterOp.nextRecord()) != null) {
