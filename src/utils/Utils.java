@@ -14,4 +14,6 @@ public class Utils {
 		return Arrays.copyOfRange(tuple, posDansTuple, posDansTuple + sizeColumn);
 
 	}
+	
+
 }

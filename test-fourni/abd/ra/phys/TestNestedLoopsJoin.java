@@ -59,7 +59,6 @@ public class TestNestedLoopsJoin {
 		JoinCriterion jcrit = new JoinCriterion(new int[]{1,0});
 		try (DefaultNestedLoopsJoin join = new DefaultNestedLoopsJoin("TABLE_ONE", "TABLE_TWO", jcrit, 2)) { 
 
-
 			//System.out.println(join.nextRecord()[0]);
 			//System.out.println(join.nextRecord()[0]);
 			//System.out.println(join.nextRecord()[0]);
