@@ -2,42 +2,32 @@ package abd.ra.phys;
 
 import java.util.Arrays;
 
+import utils.Utils;
 import abd.ra.SelectionCriterion_EqualityTwoAttributes;
 import abd.schemas.TableDescription;
 
-public class Selector_EqualityTwoAttributes implements Selector {
+public class Selector_EqualityTwoAttributes implements Selector{
 
-	TableDescription tableDecription;
-	SelectionCriterion_EqualityTwoAttributes  selectionEquality;
+	TableDescription tableDescription;
+	SelectionCriterion_EqualityTwoAttributes selectionCriterion;
 	
-	public Selector_EqualityTwoAttributes(TableDescription tableDescription, SelectionCriterion_EqualityTwoAttributes selCrit){
-		this.tableDecription = tableDescription;
-		this.selectionEquality = selCrit;
+	public Selector_EqualityTwoAttributes(TableDescription tableDescription, SelectionCriterion_EqualityTwoAttributes selectionCriterion){
+		this.tableDescription = tableDescription;
+		this.selectionCriterion = selectionCriterion;
+		
 	}
 	
 	@Override
 	public boolean isSelected(byte[] record) {
-		int columnRank1 = selectionEquality.getColumnRank1();
-		byte [] column1 = getColumnAtRank(columnRank1, record);
+		int columnRank1 = selectionCriterion.getColumnRank1();
+		int columnRank2 = selectionCriterion.getColumnRank2();
 		
-		int columnRank2 = selectionEquality.getColumnRank2();
-		byte [] column2 = getColumnAtRank(columnRank2, record);
+		byte [] column1 = Utils.getColumnFromColumnRank(tableDescription, columnRank1, record);
+		byte [] column2 = Utils.getColumnFromColumnRank(tableDescription, columnRank2, record);
+		
 		
 		return Arrays.equals(column1, column2);
 	}
-	
-	
-	private byte[] getColumnAtRank(int columnRank, byte[] tuple){
-		int cpt = 0, size;
-		for(int i=0;i<columnRank;i++){
-			cpt += tableDecription.getAttributeType(i).getLength();
-		}
-		
-		size = tableDecription.getAttributeType(columnRank).getLength();
-		
-		return Arrays.copyOfRange(tuple, cpt, cpt+size);
-		
-		
-	}
+
 
 }

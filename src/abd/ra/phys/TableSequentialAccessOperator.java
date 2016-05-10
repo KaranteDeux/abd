@@ -12,6 +12,7 @@ public class TableSequentialAccessOperator implements PhysicalOperator{
 
 	
 	DBTable table;
+	static int count = 0;
 	
 	public TableSequentialAccessOperator(String tableName) throws IOException{
 		Path dataFolder = Paths.get(SGBD.DATA_FOLDER + '/' + tableName);

@@ -10,6 +10,7 @@ import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -306,6 +307,7 @@ public class DBTableImpl implements DBTable{
 	}
 
 	private Map<Integer, Map<String, List<String[]>>> loadIndexes(){
+		
 		Map<Integer, Map<String, List<String[]>>> index = new HashMap<Integer, Map<String, List<String[]>>>();
 
 
@@ -342,13 +344,15 @@ public class DBTableImpl implements DBTable{
 		return indexes;
 	}
 
-	private ArrayList<String> getListPageFiles(){
+	private List<String> getListPageFiles(){
 		File repertoire = new File(dataFolderPath.toString());
-		ArrayList<String> pages = new ArrayList<String>();
+		List<String> pages = new ArrayList<String>();
 		for(String filename : repertoire.list()){
-			if(!filename.endsWith(".idx"))
+			if(!filename.contains("INDEX"))
 				pages.add(filename);
 		}
+		
+		Collections.sort(pages);
 		return pages;
 	}
 

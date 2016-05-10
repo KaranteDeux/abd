@@ -25,6 +25,7 @@ import abd.ra.phys.PhysicalOperator;
 import abd.ra.phys.RecordFilter;
 import abd.ra.phys.TableMapIndexAccessOperator;
 import abd.ra.phys.TableMapIndexedTraversalOperator;
+import abd.ra.phys.TableSequentialAccessOperator;
 import abd.schemas.DBTable;
 import abd.schemas.Datatype;
 import abd.schemas.TableDescription;
@@ -133,7 +134,7 @@ public class Factory {
 	 * @throws IOException
 	 */
 	public static PhysicalOperator newTableSequentialTraversalOperator (String relationName) throws IOException {
-		throw new UnsupportedOperationException("not yet implemented");
+		return	new TableSequentialAccessOperator(relationName);
 	}
 	
 	/** Returns an iterator that takes advantage of an existing map index and iterates over only the tuples of the table that have a particular value in a particular column.

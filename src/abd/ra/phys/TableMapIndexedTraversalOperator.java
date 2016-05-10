@@ -111,7 +111,7 @@ public class TableMapIndexedTraversalOperator implements PhysicalOperator {
 			Path index_file = SGBD.getIndexFileName(tableName, columnRank);
 
 			FileInputStream fin = new FileInputStream(index_file.toString());
-			ObjectInputStream ois = new ObjectInputStream(fin);   
+			ObjectInputStream ois = new ObjectInputStream(fin);
 			Map<String, List<String[]>> map = (Map<String, List<String[]>>)ois.readObject();
 
 
